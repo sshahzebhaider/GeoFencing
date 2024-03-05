@@ -1,0 +1,19 @@
+  let area = [
+    {
+        latitude: 24.942701,
+        longitude: 67.048120
+    },
+    {
+        latitude: 24.947390,
+        longitude: 67.051961
+    },{
+        latitude: 24.941242,
+        longitude: 67.060222
+    },{
+        latitude: 24.937253,
+        longitude: 67.055308
+    }
+  ]
+
+  {latitude: 24.941787,
+    longitude: 67.053420,}
