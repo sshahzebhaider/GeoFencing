@@ -7,8 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const App = () => {
   const navigation = useNavigation(); // Use the useNavigation hook to access the navigation object
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('it@topsungroup.pk');
+  const [password, setPassword] = useState('Ba@leno99');
 
   const handleLogin = async () => {
     // Call your backend API to authenticate the user
@@ -28,10 +28,10 @@ const App = () => {
 
       if (result.data.responseCode == 1000) {
         // Handle successful login
-        Alert.alert('Success', 'Logged in successfully');
+        // Alert.alert('Success', 'Logged in successfully');
         AsyncStorage.setItem('AccessToken', result.data.data.token);
         console.log(result.data.data.token)
-        navigation.navigate('Home'); // Use the navigation object to navigate to the 'Home' screen
+        navigation.navigate('Root'); // Use the navigation object to navigate to the 'Home' screen
       } else {
         // Handle failed login
         Alert.alert('Error', 'Invalid username or password');
@@ -45,13 +45,13 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-        <Text style={styles.title}>Ghaar say</Text>
+        <Text style={styles.title}>Top Sun</Text>
         <Text style={styles.comtitle}>Communication App</Text>
       <View style={styles.whiteSheet} />
       <SafeAreaView style={styles.form}>
       
          <TextInput
-        style={styles.input}
+        style={styles.inputf}
         placeholder="Enter email"
         autoCapitalize="none"
         keyboardType="email-address"
@@ -61,7 +61,7 @@ const App = () => {
         onChangeText={(text) => setEmail(text)}
       />
       <TextInput
-        style={styles.input}
+        style={styles.inputs}
         placeholder="Enter password"
         autoCapitalize="none"
         autoCorrect={false}
@@ -100,13 +100,24 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     
   },
-  input: {
+  inputf: {
     backgroundColor: "#F6F7FB",
-    height: 58,
+    height: 50,
+    marginBottom: 10,
+    fontSize: 16,
+    borderRadius: 30,
+    padding: 12,
+    marginTop:250
+    
+  },
+  inputs: {
+    backgroundColor: "#F6F7FB",
+    height: 50,
     marginBottom: 20,
     fontSize: 16,
-    borderRadius: 10,
+    borderRadius: 30,
     padding: 12,
+    
   },
   backImage: {
     width: "100%",
@@ -117,7 +128,7 @@ const styles = StyleSheet.create({
   },
   whiteSheet: {
     width: '100%',
-    height: '75%',
+    height: '50%',
     position: "absolute",
     bottom: 0,
     backgroundColor: '#fff',
@@ -131,11 +142,11 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#7393B3',
-    height: 58,
-    borderRadius: 10,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 20,
   },
 });
 

@@ -14,8 +14,9 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "permissions": ["LOCATION"],
-
+    "permissions": [
+      "LOCATION"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -28,11 +29,16 @@
         "googleMaps": {
           "apiKey": "AIzaSyC8sa1wbS_xZhEH8vpZxcffcn3cbM5xQBY"
         }
-      }
-
+      },
+      "package": "com.shahzebk.GeoFencing"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5a821d19-31ed-4965-9b29-c5f70337efc2"
+      }
     }
   }
 }
