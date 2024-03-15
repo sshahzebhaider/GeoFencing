@@ -1,16 +1,17 @@
 {
   "expo": {
-    "name": "GeoFencing",
+    "name": "Top Sun",
     "slug": "GeoFencing",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/menu-bg.jpeg",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -18,7 +19,8 @@
       "LOCATION"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shahzebk.GeoFencing"
     },
     "android": {
       "adaptiveIcon": {

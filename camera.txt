@@ -1,0 +1,204 @@
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, Text, Alert } from 'react-native';
+import MapView, { Marker, Polygon } from 'react-native-maps';
+import * as Location from 'expo-location';
+import * as geolib from 'geolib';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
+export default function HomeScreen() {
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [userState, setUserState] = useState(0); // 0: Outside, 1: Inside
+  const [area, setArea] = useState([]);
+  const [loading, setLoading] = useState(true); // Loading state
+  const [watcher, setWatcher] = useState(null); // Store the location watcher
+
+
+    const fetchAreaCoordinates = async () => {
+      try {
+        const body = {
+          skip: 0,
+          take: 100,
+          page: 1,
+          pageSize: 100
+        }
+        const token = await AsyncStorage.getItem('AccessToken');
+        const response = await axios.post(
+          'https://slcloudapi.cloudstronic.com/api/Map/Get', body,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+        // console.log("Response:", response);
+        const responseData = response.data;
+        // console.log("Response Data:", responseData);
+        if (responseData && responseData.data && Array.isArray(responseData.data)) {
+          const coordinates = responseData.data[0].mapCoordinates; // Assuming coordinates are inside mapCoordinates property
+          console.log(responseData.data[0].id)
+          setArea(coordinates.map(coord => ({  latitude: coord.latitude, longitude: coord.longitude })));
+          // console.log(area[3].fK_Map_ID)
+          
+          
+        } else {
+          console.error("Data format is not as expected:", responseData);
+          setErrorMsg("Data format is not as expected");
+        }
+      } catch (error) {
+        console.error("Error fetching area coordinates:", error);
+        setErrorMsg("Error fetching area coordinates");
+      }
+    }; 
+
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      const id = await startWatchingLocation(); // Start watching location
+      setWatcher(id);
+
+      await fetchAreaCoordinates(); // Fetch area coordinates
+
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (area.length > 0) {
+      setLoading(false); // Set loading to false when area coordinates are fetched
+    }
+  }, [area]);
+
+  useEffect(() => {
+    return () => {
+      // Clean up - stop watching location when component unmounts
+      if (watcher) {
+        watcher.remove();
+      }
+    };
+  }, [watcher]);
+
+  const startWatchingLocation = async () => {
+    try {
+      const watcher = await Location.watchPositionAsync({}, (position) => {
+        setLocation(position);
+        checkLocation(position);
+      });
+      return watcher;
+    } catch (error) {
+      console.error("Error watching location:", error);
+      setErrorMsg("Error watching location");
+    }
+  };
+
+  const checkLocation = async (position) => {
+    const userId = await AsyncStorage.getItem('UserId')
+    const isInside = geolib.isPointInPolygon(
+      { latitude: position.coords.latitude, longitude: position.coords.longitude },
+      area
+    );
+    console.log(userState)
+    if (isInside && userState === 0) {
+      // setUserState(1);
+      // const indata = [{
+      //   positionDate: new Date().toISOString(),
+      //   fK_Map_ID: area.find.fK_Map_ID,
+      //   fK_Employee_ID: userId, // Replace "string" with the actual employee ID
+      //   latitude: position.coords.latitude,
+      //   longitude: position.coords.longitude,
+      //   attendanceMode: 0
+      // }];
+
+
+      // try {
+      //   console.log(indata)
+      //   const token = await AsyncStorage.getItem('AccessToken');
+      //   await axios.post(
+      //     'https://slcloudapi.cloudstronic.com/api/EmployeePositionOnMap/Add',
+      //     indata,
+      //     {
+      //       headers: {
+      //         Authorization: `Bearer ${token}`
+      //       }
+      //     }
+      //   );
+      //   console.log("Position data sent successfully.");
+      // } catch (error) {
+      //   console.error("Error sending position data:", error);
+      //   setErrorMsg("Error sending position data");
+      // }
+      Alert.alert('Alert', 'You have entered the specified area!');
+      
+    } else if (!isInside && userState === 1) {
+      // setUserState(0);
+      // const outdata = [{
+      //   positionDate: new Date().toISOString(),
+      //   fK_Employee_ID: userId, // Replace "string" with the actual employee ID
+      //   latitude: position.coords.latitude,
+      //   longitude: position.coords.longitude,
+      //   attendanceMode: 1
+      // }];
+
+      // try {
+      //   const token = await AsyncStorage.getItem('AccessToken');
+      //   await axios.post(
+      //     'https://slcloudapi.cloudstronic.com/api/EmployeePositionOnMap/Add',
+      //     outdata,
+      //     {
+      //       headers: {
+      //         Authorization: `Bearer ${token}`
+      //       }
+      //     }
+      //   );
+      //   console.log("Position data sent successfully.");
+      // } catch (error) {
+      //   console.error("Error sending position data:", error);
+      //   setErrorMsg("Error sending position data");
+      // }
+      Alert.alert('Alert', 'You have exited the specified area!');
+    }
+  };
+
+
+
+  return (
+    <View style={styles.container}>
+      {loading ? (
+        <Text>Loading...</Text> // Show loading indicator while coordinates are being fetched
+      ) : (
+        location ? (
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+          >
+            <Polygon strokeColor='grey' fillColor='#EBF5FB' strokeWidth={2} coordinates={area} />
+          </MapView>
+        ) : (
+          <Text>{errorMsg || 'Waiting for location permission...'}</Text>
+        )
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  map: {
+    flex: 1,
+  },
+});
