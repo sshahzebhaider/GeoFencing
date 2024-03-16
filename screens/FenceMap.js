@@ -3,13 +3,47 @@ import { View, Alert, Text } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as geolib from 'geolib';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
-const FenceMap = ({ fences }) => {
+const FenceMap = () => {
     const [location, setLocation] = useState(null);
     const [userState, setUserState] = useState(0); // 0 for outside, 1 for inside
     const [enteredFences, setEnteredFences] = useState([]);
     const [exitedFences, setExitedFences] = useState([]);
     const [errorMsg, setErrorMsg] = useState(null);
+    const [fences , setFences] = useState([])
+
+  useEffect(() => {
+    const fetchAreaCoordinates = async () => {
+      try {
+        const body = {
+          skip: 0,
+          take: 100,
+          page: 1,
+          pageSize: 100
+        }
+        const token = await AsyncStorage.getItem('AccessToken');
+        const response = await axios.post(
+          'https://slcloudapi.cloudstronic.com/api/Map/Get', body,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+        // console.log("Response:", response);
+        const responseData = response.data;
+        console.log(responseData.data)
+        setFences(responseData.data)
+
+      } catch (error) {
+        console.error("Error fetching area coordinates:", error);
+        setErrorMsg("Error fetching area coordinates");
+      }
+    };
+    fetchAreaCoordinates();
+  }, [])
 
     useEffect(() => {
         const startWatchingLocation = async () => {
@@ -49,8 +83,10 @@ const FenceMap = ({ fences }) => {
                 fence.mapCoordinates
             )) {
                 insideFence = fence.id;
+                
                 break;
             }
+            console.log(fence.id)
         }
     
         if (insideFence !== null) {
