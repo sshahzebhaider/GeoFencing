@@ -102,6 +102,7 @@ const FenceMap = () => {
                 setEnteredFences(prevEnteredFences => [...prevEnteredFences, insideFence]);
                 console.log('Entered fence:', insideFence);
                 Alert.alert('Alert', 'You have entered the area!');
+                insideFence = null;
             }
         } else {
             // User is outside all fences
