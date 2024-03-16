@@ -6,71 +6,75 @@ import * as geolib from 'geolib';
 
 const FenceMap = ({ fences }) => {
     const [location, setLocation] = useState(null);
-    const [fenceId, setFenceId] = useState()
-
+    const [userState, setUserState] = useState(0); // 0 for outside, 1 for inside
+    const [enteredFences, setEnteredFences] = useState([]);
+    const [exitedFences, setExitedFences] = useState([]);
+    const [errorMsg, setErrorMsg] = useState(null);
 
     useEffect(() => {
-        (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                setErrorMsg('Permission to access location was denied');
-                return;
+        const startWatchingLocation = async () => {
+            try {
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    setErrorMsg('Permission to access location was denied');
+                    return;
+                }
+
+                const locationSubscription = await Location.watchPositionAsync(
+                    { enableHighAccuracy: true },
+                    (newLocation) => {
+                        setLocation(newLocation);
+                        checkInsideFence(newLocation.coords.latitude, newLocation.coords.longitude);
+                    }
+                );
+
+                return () => {
+                    locationSubscription.remove(); // Cleanup function to remove the location subscription
+                };
+            } catch (error) {
+                console.error("Error watching location:", error);
             }
+        };
 
-            await updateLocation(); // Initial location update
-
-            const interval = setInterval(updateLocation, 2000); // Update location every 2 seconds
-
-            return () => clearInterval(interval); // Cleanup on unmount
-        })();
+        startWatchingLocation(); // Start watching location when component mounts
     }, []);
 
-    const updateLocation = async () => {
-        try {
-            const currentLocation = await Location.getCurrentPositionAsync({});
-            setLocation(currentLocation);
-            // console.log(location)
-            let insideAnyFence = false; // Track if user is inside any fence
-            let userState = 0
-
-            // Check if user is inside any fence
-            for (const fence of fences) {
-                if (geolib.isPointInPolygon(
-                    { latitude: 24.942480, longitude: 67.055290 },    
-                    fence.mapCoordinates
-                )) {
-                    // console.log(fence.id)
-                    
-                    insideAnyFence = true
-                    console.log(fenceId)
-                    setFenceId(fence.id)
-                    break; // Exit loop once inside any fence is found
-                }else{
-                    // console.log(fence.id)
-                    insideAnyFence = false
-                    setFenceId(fence.id)
-                    console.log(fenceId)
-
-                    break; 
-                }
+    const checkInsideFence = (latitude, longitude) => {
+        let insideFence = null;
+    
+        // Find the currently inside fence
+        for (const fence of fences) {
+            if (geolib.isPointInPolygon(
+                { latitude: latitude, longitude: longitude },
+                fence.mapCoordinates
+            )) {
+                insideFence = fence.id;
+                break;
             }
-
-            
-            // Handle user state change
-            if (insideAnyFence === true && userState === 0) {
-                userState = 1
-                console.log(fenceId)
+        }
+    
+        if (insideFence !== null) {
+            // User is inside a fence
+            if (userState === 0) {
+                setUserState(1);
+                setEnteredFences(prevEnteredFences => [...prevEnteredFences, insideFence]);
+                console.log('Entered fence:', insideFence);
                 Alert.alert('Alert', 'You have entered the area!');
-            } else if (insideAnyFence === false && userState === 1) {
-                userState = 0
-                console.log(fenceId)
-                Alert.alert('Alert', 'You have exited the area!');
             }
-        } catch (error) {
-            console.error("Error fetching location:", error);
-            setErrorMsg("Error fetching location");
+        } else {
+            // User is outside all fences
+            if (userState === 1) {
+                const exitFence = enteredFences.pop();
+                setUserState(0);
+                setExitedFences(prevExitedFences => [...prevExitedFences, exitFence]);
+                console.log('Exited fence:', exitFence);
+                Alert.alert('Alert', 'You have exited the area!');
+
+            }
         }
     };
+    
+    
 
     if (!location) {
         return <View><Text>Loading...</Text></View>; // Render loading indicator until location is available
@@ -86,8 +90,9 @@ const FenceMap = ({ fences }) => {
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
             }}
-            showsUserLocation = {true}
-            showsMyLocationButton = {true}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+            showsCompass={true}
         >
             {fences.map((fence) => (
                 <Polygon
