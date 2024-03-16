@@ -57,8 +57,8 @@ const FenceMap = () => {
                 const locationSubscription = await Location.watchPositionAsync(
                     { enableHighAccuracy: true },
                     (newLocation) => {
+                        checkInsideFence(locationSubscription.Location.coords.latitude, locationSubscription.Location.coords.longitude);
                         setLocation(newLocation);
-                        checkInsideFence(newLocation.coords.latitude, newLocation.coords.longitude);
                     }
                 );
 
@@ -72,12 +72,14 @@ const FenceMap = () => {
 
         startWatchingLocation(); // Start watching location when component mounts
     }, []);
+    
 
     const checkInsideFence = (latitude, longitude) => {
         let insideFence = null;
-    
+         console.log(latitude)
         // Find the currently inside fence
         for (const fence of fences) {
+            
             if (geolib.isPointInPolygon(
                 { latitude: latitude, longitude: longitude },
                 fence.mapCoordinates
