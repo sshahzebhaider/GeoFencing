@@ -13,7 +13,7 @@ const FenceMap = () => {
     const [exitedFences, setExitedFences] = useState([]);
     const [errorMsg, setErrorMsg] = useState(null);
     const [fences, setFences] = useState([]);
-
+    let movementList = [];
     useEffect(() => {
         const fetchAreaCoordinates = async () => {
             try {
@@ -25,7 +25,7 @@ const FenceMap = () => {
                 };
                 const token = await AsyncStorage.getItem('AccessToken');
                 const response = await axios.post(
-                    'https://slcloudapi.cloudstronic.com/api/Map/Get',
+                    'http://65.21.231.108:2323/api/Map/Get',
                     body,
                     {
                         headers: {
@@ -80,41 +80,84 @@ const FenceMap = () => {
     }, [fences]);
 
     const checkInsideFence = (latitude, longitude) => {
-        let insideFence = null;
-        console.log(latitude);
-        console.log(longitude);
-        // Find the currently inside fence
+       
+     
+      
+     
         for (const fence of fences) {
-            if (geolib.isPointInPolygon(
-                { latitude: latitude, longitude: longitude },
-                fence.mapCoordinates
-            )) {
 
-                insideFence = fence.id;
-                break;
-            }
-           // console.log(fence.id);
-        }
+            const lastMovement = movementList.slice().reverse().find(movement => movement.fenceId === fence.id);
+            console.log(lastMovement);
+            if (geolib.isPointInPolygon({ latitude: latitude, longitude: longitude },fence.mapCoordinates)) {
+               
+                const movement = {
+                   
+                    time: new Date(),
+                    fenceId: fence.id,
+                    status: 'isInside' ,
+                    isUpload: false
+                };
 
-        if (insideFence !== null) {
-            // User is inside a fence
-            if (userState === 0) {
-                setUserState(1);
-                setEnteredFences(prevEnteredFences => [...prevEnteredFences, insideFence]);
-               // console.log('Entered fence:', insideFence);
-               // Alert.alert('Alert', 'You have entered the area!');
-                insideFence = null;
+                
+                if(lastMovement === undefined)
+                {
+                movementList.push(movement);
+                }
+                else
+                {
+                    if(lastMovement.fenceId===fence.id && lastMovement.status != 'isInside')
+                    {
+                        movementList.push(movement);
+
+                    }
+
+                }
             }
-        } else {
-            // User is outside all fences
-            if (userState === 1) {
-                const exitFence = enteredFences.pop();
-                setUserState(0);
-                setExitedFences(prevExitedFences => [...prevExitedFences, exitFence]);
-               // console.log('Exited fence:', exitFence);
-               // Alert.alert('Alert', 'You have exited the area!');
+            else
+            {
+                const movement = {
+                   
+                    time: new Date(),
+                    fenceId: fence.id,
+                    status: 'outSide', 
+                    isUpload: false
+                };
+                if(lastMovement === undefined)
+                {
+                movementList.push(movement);
+                }
+                else
+                {
+                    if(lastMovement.fenceId===fence.id && lastMovement.status != 'outSide')
+                    {
+                        movementList.push(movement);
+
+                    }
+
+                }
             }
+           
         }
+        //console.log(movementList);
+        // if (insideFence !== null) {
+        //     // User is inside a fence
+        //     if (userState === 0) {
+        //         setUserState(1);
+        //         setEnteredFences(prevEnteredFences => [...prevEnteredFences, insideFence]);
+        //        // console.log('Entered fence:', insideFence);
+        //        // Alert.alert('Alert', 'You have entered the area!');
+        //         insideFence = null;
+        //     }
+        // } else {
+        //     // User is outside all fences
+        //     if (userState === 1) {
+        //         const exitFence = enteredFences.pop();
+        //         setUserState(0);
+        //         setExitedFences(prevExitedFences => [...prevExitedFences, exitFence]);
+        //        // console.log('Exited fence:', exitFence);
+        //        // Alert.alert('Alert', 'You have exited the area!');
+        //     }
+        // }
     };
 
     if (!location) {

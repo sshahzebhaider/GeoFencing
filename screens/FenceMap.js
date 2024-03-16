@@ -25,7 +25,7 @@ const FenceMap = () => {
         }
         const token = await AsyncStorage.getItem('AccessToken');
         const response = await axios.post(
-          'https://slcloudapi.cloudstronic.com/api/Map/Get', body,
+          'http://65.21.231.108:2323/api/Map/Get', body,
           {
             headers: {
               Authorization: `Bearer ${token}`
