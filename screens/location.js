@@ -89,10 +89,11 @@ const FenceMap = () => {
                 { latitude: latitude, longitude: longitude },
                 fence.mapCoordinates
             )) {
+
                 insideFence = fence.id;
                 break;
             }
-            console.log(fence.id);
+           // console.log(fence.id);
         }
 
         if (insideFence !== null) {
@@ -100,8 +101,8 @@ const FenceMap = () => {
             if (userState === 0) {
                 setUserState(1);
                 setEnteredFences(prevEnteredFences => [...prevEnteredFences, insideFence]);
-                console.log('Entered fence:', insideFence);
-                Alert.alert('Alert', 'You have entered the area!');
+               // console.log('Entered fence:', insideFence);
+               // Alert.alert('Alert', 'You have entered the area!');
                 insideFence = null;
             }
         } else {
@@ -110,8 +111,8 @@ const FenceMap = () => {
                 const exitFence = enteredFences.pop();
                 setUserState(0);
                 setExitedFences(prevExitedFences => [...prevExitedFences, exitFence]);
-                console.log('Exited fence:', exitFence);
-                Alert.alert('Alert', 'You have exited the area!');
+               // console.log('Exited fence:', exitFence);
+               // Alert.alert('Alert', 'You have exited the area!');
             }
         }
     };
