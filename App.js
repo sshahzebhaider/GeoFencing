@@ -102,7 +102,7 @@ function CustomDrawerContent(props) {
           console.log(picname)
           console.log(pictype)
           console.log(token)
-          const respo = await axios.post(`https://slcloudapi.cloudstronic.com/api/Employee/AddEmployeeImageAsync`, picData, {
+          const respo = await axios.post(`http://65.21.231.108:2323/api/Employee/AddEmployeeImageAsync`, picData, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'multipart/form-data'
@@ -164,7 +164,7 @@ function CustomDrawerContent(props) {
         }
         const token = await AsyncStorage.getItem('AccessToken');
         const response = await axios.post(
-          'https://slcloudapi.cloudstronic.com/api/Map/Get', body,
+          'http://65.21.231.108:2323/api/Map/Get', body,
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -259,7 +259,7 @@ function Root() {
         const token = await AsyncStorage.getItem('AccessToken');
         // const token = "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWdhaGlpQGdtYWlsLmNvbSIsImp0aSI6ImQxM2U4NjJiLWExNGYtNDFmNy04MWVjLWQwMWNhMTU0OTg5NyIsImV4cCI6MTcxMDAyMTg3OSwiaXNzIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6NDQzMjIiLCJhdWQiOiJVc2VyIn0.SVkTuTLsSs4FfZGtBy-vUOpYLeMkp9KvBUiT1tikmr0"; // Your token here
         const response = await axios.get(
-          'https://slcloudapi.cloudstronic.com/api/VoucherManagerMaster/GetUserWiseFixedMenuList',
+          'http://65.21.231.108:2323/api/VoucherManagerMaster/GetUserWiseFixedMenuList',
           {
             headers: {
               Authorization: `Bearer ${token}`

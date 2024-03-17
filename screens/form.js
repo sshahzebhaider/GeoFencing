@@ -131,7 +131,7 @@ const Form = (ScreenKey) => {
 
                 try {
                     //   console.log(imageData);
-                    const result = await axios.post(`https://slcloudapi.cloudstronic.com/api/VoucherMaster/AddVoucherImageAsync`, imageData, {
+                    const result = await axios.post(`http://65.21.231.108:2323/api/VoucherMaster/AddVoucherImageAsync`, imageData, {
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data',
@@ -188,7 +188,7 @@ const Form = (ScreenKey) => {
 
         try {
             // console.log(apiData);
-            const result = await axios.post(`https://slcloudapi.cloudstronic.com/api/VoucherMaster/Add`, apiData, {
+            const result = await axios.post(`http://65.21.231.108:2323/api/VoucherMaster/Add`, apiData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
@@ -215,7 +215,7 @@ const Form = (ScreenKey) => {
 
                     try {
                         console.log(picData);
-                        const respo = await axios.post(`https://slcloudapi.cloudstronic.com/api/VoucherMaster/AddVoucherImageAsync`, picData, {
+                        const respo = await axios.post(`http://65.21.231.108:2323/api/VoucherMaster/AddVoucherImageAsync`, picData, {
                             headers: {
                                 'Authorization': `Bearer ${token}`,
                                 'Content-Type': 'multipart/form-data'

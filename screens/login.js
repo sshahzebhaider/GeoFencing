@@ -20,7 +20,7 @@ const App = () => {
 
     try {
       const result = await axios.post(
-        `https://slcloudapi.cloudstronic.com/api/Account/login`,
+        `http://65.21.231.108:2323/api/Account/login`,
         userCredentials,
         {timeout: 10000}
       );

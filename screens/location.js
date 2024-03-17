@@ -14,6 +14,8 @@ const FenceMap = () => {
     const [errorMsg, setErrorMsg] = useState(null);
     const [fences, setFences] = useState([]);
 
+
+
     useEffect(() => {
         const fetchAreaCoordinates = async () => {
             try {
@@ -25,7 +27,7 @@ const FenceMap = () => {
                 };
                 const token = await AsyncStorage.getItem('AccessToken');
                 const response = await axios.post(
-                    'https://slcloudapi.cloudstronic.com/api/Map/Get',
+                    'http://65.21.231.108:2323/api/Map/Get',
                     body,
                     {
                         headers: {
@@ -81,9 +83,8 @@ const FenceMap = () => {
 
     const checkInsideFence = (latitude, longitude) => {
         let insideFence = null;
-        console.log(latitude);
-        console.log(longitude);
-        // Find the currently inside fence
+        
+
         for (const fence of fences) {
             if (geolib.isPointInPolygon(
                 { latitude: latitude, longitude: longitude },
@@ -92,9 +93,8 @@ const FenceMap = () => {
                 insideFence = fence.id;
                 break;
             }
-            console.log(fence.id);
         }
-
+        // User is inside a fence
         if (insideFence !== null) {
             // User is inside a fence
             if (userState === 0) {
@@ -102,7 +102,6 @@ const FenceMap = () => {
                 setEnteredFences(prevEnteredFences => [...prevEnteredFences, insideFence]);
                 console.log('Entered fence:', insideFence);
                 Alert.alert('Alert', 'You have entered the area!');
-                insideFence = null;
             }
         } else {
             // User is outside all fences
@@ -111,10 +110,11 @@ const FenceMap = () => {
                 setUserState(0);
                 setExitedFences(prevExitedFences => [...prevExitedFences, exitFence]);
                 console.log('Exited fence:', exitFence);
-                Alert.alert('Alert', 'You have exited the area!');
             }
         }
+
     };
+
 
     if (!location) {
         return <View><Text>Loading...</Text></View>; // Render loading indicator until location is available
