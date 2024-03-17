@@ -5,12 +5,10 @@ import * as Location from 'expo-location';
 import * as geolib from 'geolib';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import uuid from 'react-native-uuid';
 
 const FenceMap = () => {
     const [location, setLocation] = useState(null);
-    const [userState, setUserState] = useState(0); // 0 for outside, 1 for inside
-    const [enteredFences, setEnteredFences] = useState([]);
-    const [exitedFences, setExitedFences] = useState([]);
     const [errorMsg, setErrorMsg] = useState(null);
     const [fences, setFences] = useState([]);
     let movementList = [];
@@ -43,6 +41,7 @@ const FenceMap = () => {
 
     useEffect(() => {
         const fetchAreaCoordinates = async () => {
+            // console.log(uuid.v4())
             try {
                 const body = {
                     skip: 0,
@@ -72,6 +71,8 @@ const FenceMap = () => {
 
         fetchAreaCoordinates();
     }, []);
+
+
 
     useEffect(() => {
         const startWatchingLocation = async () => {
@@ -106,6 +107,70 @@ const FenceMap = () => {
         startWatchingLocation(); // Start watching location when component mounts
     }, [fences]);
 
+
+    const sendInData = async (latitude, longitude, time, fenceId) => {
+        const userId = await AsyncStorage.getItem('UserId')
+        const token = await AsyncStorage.getItem('AccessToken');
+
+        const apiData = {
+            positionDate: time,
+            fK_Employee_ID: userId,
+            fK_Map_ID: fenceId,
+            latitude: latitude,
+            longitude: longitude,
+            attendanceMode: 0
+        };
+
+        try {
+            console.log(apiData);
+            const result = await axios.post(`http://65.21.231.108:2323/api/EmployeePositionOnMap/Add`, apiData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                timeout: 15000 // Set a timeout of 5 seconds
+            });
+            if(result.status === 200){
+                console.log("Location data sent")
+            }else{
+                console.log("Error sending data")
+            }
+        } catch (e) {
+            console.log("Error sending data: ", e)
+        }
+    }
+
+    const sendOutData = async (latitude, longitude, time, fenceId) => {
+        const userId = await AsyncStorage.getItem('UserId')
+        const token = await AsyncStorage.getItem('AccessToken');
+
+        const apiData = [{
+            positionDate: time,
+            fK_Employee_ID: userId,
+            fK_Map_ID: fenceId,
+            latitude: latitude,
+            longitude: longitude,
+            attendanceMode: 1
+        }];
+
+        try {
+            console.log(apiData);
+            const result = await axios.post(`http://65.21.231.108:2323/api/EmployeePositionOnMap/Add`, apiData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                timeout: 15000 // Set a timeout of 5 seconds
+            });
+            if(result.status === 200){
+                console.log("Location data sent")
+            }else{
+                console.log("Error sending data")
+            }
+        } catch (e) {
+            console.log("Error sending data: ", e)
+        }
+    }
+
+
     const  checkInsideFence = async  (latitude, longitude) => {
      
         for (const fence of fences) {
@@ -113,16 +178,16 @@ const FenceMap = () => {
             const lastMovement = movementList.slice().reverse().find(movement => movement.fenceId === fence.id);
             //console.log(lastMovement);
 
-            if (geolib.isPointInPolygon({ latitude: latitude, longitude: longitude },fence.mapCoordinates)) {
-               
+            if (geolib.isPointInPolygon({ latitude: latitude, longitude: longitude }, fence.mapCoordinates)) {
+
                 const movement = {
-                   
+                    id: uuid.v4(),
                     time: new Date(),
                     fenceId: fence.id,
                     status: 0 ,
                     isUpload: false,
-                    latitude:latitude,
-                    longitude:longitude
+                    latitude: latitude,
+                    longitude: longitude
                 };
                 if(lastMovement === undefined)
                 {
@@ -181,16 +246,15 @@ const FenceMap = () => {
 
                 }
             }
-            else
-            {
+            else {
                 const movement = {
-                   
+
                     time: new Date(),
                     fenceId: fence.id,
                     status: 1, 
                     isUpload: false,
-                    latitude:latitude,
-                    longitude:longitude
+                    latitude: latitude,
+                    longitude: longitude
                 };
                 if(lastMovement === undefined)
                 {
