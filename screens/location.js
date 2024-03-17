@@ -17,26 +17,26 @@ const FenceMap = () => {
 
     const saveRecordsToServer = async (records) => {
         try {
-          const token = await AsyncStorage.getItem('AccessToken');
-          const response = await axios.post(
-            'http://65.21.231.108:2323/api/EmployeePositionOnMap/Add',
-            records,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            }
-          );
-      
-          const responseData = response.data;
-         // console.log(responseData.data);
-          return responseData.data; // Assuming you want to return the data for further processing
-      
+            const token = await AsyncStorage.getItem('AccessToken');
+            const response = await axios.post(
+                'http://65.21.231.108:2323/api/EmployeePositionOnMap/Add',
+                records,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            const responseData = response.data;
+            // console.log(responseData.data);
+            return responseData.data; // Assuming you want to return the data for further processing
+
         } catch (error) {
-          console.error("Error saving records:", error);
-          throw error; // Throw the error so that the caller can handle it
+            console.error("Error saving records:", error);
+            throw error; // Throw the error so that the caller can handle it
         }
-      };
+    };
 
 
     useEffect(() => {
@@ -108,71 +108,10 @@ const FenceMap = () => {
     }, [fences]);
 
 
-    const sendInData = async (latitude, longitude, time, fenceId) => {
-        const userId = await AsyncStorage.getItem('UserId')
-        const token = await AsyncStorage.getItem('AccessToken');
-
-        const apiData = {
-            positionDate: time,
-            fK_Employee_ID: userId,
-            fK_Map_ID: fenceId,
-            latitude: latitude,
-            longitude: longitude,
-            attendanceMode: 0
-        };
-
-        try {
-            console.log(apiData);
-            const result = await axios.post(`http://65.21.231.108:2323/api/EmployeePositionOnMap/Add`, apiData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                timeout: 15000 // Set a timeout of 5 seconds
-            });
-            if(result.status === 200){
-                console.log("Location data sent")
-            }else{
-                console.log("Error sending data")
-            }
-        } catch (e) {
-            console.log("Error sending data: ", e)
-        }
-    }
-
-    const sendOutData = async (latitude, longitude, time, fenceId) => {
-        const userId = await AsyncStorage.getItem('UserId')
-        const token = await AsyncStorage.getItem('AccessToken');
-
-        const apiData = [{
-            positionDate: time,
-            fK_Employee_ID: userId,
-            fK_Map_ID: fenceId,
-            latitude: latitude,
-            longitude: longitude,
-            attendanceMode: 1
-        }];
-
-        try {
-            console.log(apiData);
-            const result = await axios.post(`http://65.21.231.108:2323/api/EmployeePositionOnMap/Add`, apiData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                timeout: 15000 // Set a timeout of 5 seconds
-            });
-            if(result.status === 200){
-                console.log("Location data sent")
-            }else{
-                console.log("Error sending data")
-            }
-        } catch (e) {
-            console.log("Error sending data: ", e)
-        }
-    }
 
 
-    const  checkInsideFence = async  (latitude, longitude) => {
-     
+    const checkInsideFence = async (latitude, longitude) => {
+
         for (const fence of fences) {
 
             const lastMovement = movementList.slice().reverse().find(movement => movement.fenceId === fence.id);
@@ -184,63 +123,60 @@ const FenceMap = () => {
                     id: uuid.v4(),
                     time: new Date(),
                     fenceId: fence.id,
-                    status: 0 ,
+                    status: 0,
                     isUpload: false,
                     latitude: latitude,
                     longitude: longitude
                 };
-                if(lastMovement === undefined)
-                {
-                await movementList.push(movement);
-                const records = [
-                    {
-                        
-                      positionDate: movement.time,
-                      fK_Map_ID:  movement.fenceId,
-                      fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
-                      latitude: movement.latitude,
-                      longitude: movement.longitude,
-                      attendanceMode:movement.status
-                    }
-                  ];
+                if (lastMovement === undefined) {
+                    await movementList.push(movement);
+                    const records = [
+                        {
+                            id: movement.id,
+                            positionDate: movement.time,
+                            fK_Map_ID: movement.fenceId,
+                            fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
+                            latitude: movement.latitude,
+                            longitude: movement.longitude,
+                            attendanceMode: movement.status
+                        }
+                    ];
 
-                await saveRecordsToServer(records)
-                .then(data => {
-                  
-                })
-                .catch(error => {
-                  
-                  console.error("Error saving records:", error);
-                  setErrorMsg("Error saving records");
-                });
+                    await saveRecordsToServer(records)
+                        .then(data => {
+
+                        })
+                        .catch(error => {
+
+                            console.error("Error saving records:", error);
+                            setErrorMsg("Error saving records");
+                        });
 
                 }
-                else
-                {
-                    if(lastMovement.fenceId===fence.id && lastMovement.status != 0)
-                    {
+                else {
+                    if (lastMovement.fenceId === fence.id && lastMovement.status != 0) {
                         await movementList.push(movement);
                         const records = [
                             {
-                              positionDate: movement.time,
-                              fK_Map_ID:  movement.fenceId,
-                              fK_Employee_ID:  await AsyncStorage.getItem('employeeID'),
-                              latitude: movement.latitude,
-                              longitude: movement.longitude,
-                              attendanceMode:movement.status
+                                positionDate: movement.time,
+                                fK_Map_ID: movement.fenceId,
+                                fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
+                                latitude: movement.latitude,
+                                longitude: movement.longitude,
+                                attendanceMode: movement.status
                             }
-                          ];
-        
-                          await saveRecordsToServer(records)
-                        .then(data => {
-                          
-                        })
-                        .catch(error => {
-                          
-                          console.error("Error saving records:", error);
-                          setErrorMsg("Error saving records");
-                        });
-        
+                        ];
+
+                        await saveRecordsToServer(records)
+                            .then(data => {
+
+                            })
+                            .catch(error => {
+
+                                console.error("Error saving records:", error);
+                                setErrorMsg("Error saving records");
+                            });
+
 
                     }
 
@@ -251,77 +187,74 @@ const FenceMap = () => {
 
                     time: new Date(),
                     fenceId: fence.id,
-                    status: 1, 
+                    status: 1,
                     isUpload: false,
                     latitude: latitude,
                     longitude: longitude
                 };
-                if(lastMovement === undefined)
-                {
+                if (lastMovement === undefined) {
                     await movementList.push(movement);
 
-                const records = [
-                    {
-                      positionDate: movement.time,
-                      fK_Map_ID:  movement.fenceId,
-                      fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
-                      latitude: movement.latitude,
-                      longitude: movement.longitude,
-                      attendanceMode:movement.status
-                    }
-                  ];
+                    const records = [
+                        {
+                            positionDate: movement.time,
+                            fK_Map_ID: movement.fenceId,
+                            fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
+                            latitude: movement.latitude,
+                            longitude: movement.longitude,
+                            attendanceMode: movement.status
+                        }
+                    ];
 
-                  await saveRecordsToServer(records)
-                .then(data => {
-                  
-                })
-                .catch(error => {
-                  
-                  console.error("Error saving records:", error);
-                  setErrorMsg("Error saving records");
-                });
+                    await saveRecordsToServer(records)
+                        .then(data => {
 
+                        })
+                        .catch(error => {
 
+                            console.error("Error saving records:", error);
+                            setErrorMsg("Error saving records");
+                        });
 
 
 
 
-                
+
+
+
                 }
-                else
-                {
-                    if(lastMovement.fenceId===fence.id && lastMovement.status != 1)
-                    {
+                else {
+                    if (lastMovement.fenceId === fence.id && lastMovement.status != 1) {
                         await movementList.push(movement);
                         const records = [
                             {
-                              positionDate: movement.time,
-                              fK_Map_ID:  movement.fenceId,
-                              fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
-                              latitude: movement.latitude,
-                              longitude: movement.longitude,
-                              attendanceMode:movement.status
+                                positionDate: movement.time,
+                                fK_Map_ID: movement.fenceId,
+                                fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
+                                latitude: movement.latitude,
+                                longitude: movement.longitude,
+                                attendanceMode: movement.status
                             }
-                          ];
-        
-                          await saveRecordsToServer(records)
-                        .then(data => {
-                          
-                        })
-                        .catch(error => {
-                          
-                          console.error("Error saving records:", error);
-                          setErrorMsg("Error saving records");
-                        });
-        
+                        ];
+
+                        await saveRecordsToServer(records)
+                            .then(data => {
+
+                            })
+                            .catch(error => {
+
+                                console.error("Error saving records:", error);
+                                setErrorMsg("Error saving records");
+                            });
+
 
                     }
 
                 }
             }
-           
+
         }
-     
+
     };
 
     if (!location) {
