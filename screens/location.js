@@ -88,6 +88,7 @@ const FenceMap = () => {
 
             const lastMovement = movementList.slice().reverse().find(movement => movement.fenceId === fence.id);
             console.log(lastMovement);
+
             if (geolib.isPointInPolygon({ latitude: latitude, longitude: longitude },fence.mapCoordinates)) {
                
                 const movement = {
@@ -95,7 +96,9 @@ const FenceMap = () => {
                     time: new Date(),
                     fenceId: fence.id,
                     status: 'isInside' ,
-                    isUpload: false
+                    isUpload: false,
+                    latitude:latitude,
+                    longitude:longitude
                 };
 
                 
@@ -103,6 +106,8 @@ const FenceMap = () => {
                 {
                 movementList.push(movement);
                 }
+
+
                 else
                 {
                     if(lastMovement.fenceId===fence.id && lastMovement.status != 'isInside')
@@ -120,7 +125,9 @@ const FenceMap = () => {
                     time: new Date(),
                     fenceId: fence.id,
                     status: 'outSide', 
-                    isUpload: false
+                    isUpload: false,
+                    latitude:latitude,
+                    longitude:longitude
                 };
                 if(lastMovement === undefined)
                 {
