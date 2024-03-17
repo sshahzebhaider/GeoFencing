@@ -13,6 +13,18 @@ const FenceMap = () => {
     const [exitedFences, setExitedFences] = useState([]);
     const [errorMsg, setErrorMsg] = useState(null);
 
+
+
+
+
+
+
+    
+
+
+
+
+
   useEffect(() => {
     const fetchAreaCoordinates = async () => {
       try {

@@ -14,6 +14,33 @@ const FenceMap = () => {
     const [errorMsg, setErrorMsg] = useState(null);
     const [fences, setFences] = useState([]);
     let movementList = [];
+
+
+
+    const saveRecordsToServer = async (records) => {
+        try {
+          const token = await AsyncStorage.getItem('AccessToken');
+          const response = await axios.post(
+            'http://65.21.231.108:2323/api/EmployeePositionOnMap/Add',
+            records,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
+          );
+      
+          const responseData = response.data;
+         // console.log(responseData.data);
+          return responseData.data; // Assuming you want to return the data for further processing
+      
+        } catch (error) {
+          console.error("Error saving records:", error);
+          throw error; // Throw the error so that the caller can handle it
+        }
+      };
+
+
     useEffect(() => {
         const fetchAreaCoordinates = async () => {
             try {
@@ -35,7 +62,7 @@ const FenceMap = () => {
                 );
                 // console.log("Response:", response);
                 const responseData = response.data;
-                console.log(responseData.data);
+                //console.log(responseData.data);
                 setFences(responseData.data);
             } catch (error) {
                 console.error("Error fetching area coordinates:", error);
@@ -79,15 +106,12 @@ const FenceMap = () => {
         startWatchingLocation(); // Start watching location when component mounts
     }, [fences]);
 
-    const checkInsideFence = (latitude, longitude) => {
-       
-     
-      
+    const  checkInsideFence = async  (latitude, longitude) => {
      
         for (const fence of fences) {
 
             const lastMovement = movementList.slice().reverse().find(movement => movement.fenceId === fence.id);
-            console.log(lastMovement);
+            //console.log(lastMovement);
 
             if (geolib.isPointInPolygon({ latitude: latitude, longitude: longitude },fence.mapCoordinates)) {
                
@@ -95,24 +119,63 @@ const FenceMap = () => {
                    
                     time: new Date(),
                     fenceId: fence.id,
-                    status: 'isInside' ,
+                    status: 0 ,
                     isUpload: false,
                     latitude:latitude,
                     longitude:longitude
                 };
-
-                
                 if(lastMovement === undefined)
                 {
-                movementList.push(movement);
+                await movementList.push(movement);
+                const records = [
+                    {
+                        
+                      positionDate: movement.time,
+                      fK_Map_ID:  movement.fenceId,
+                      fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
+                      latitude: movement.latitude,
+                      longitude: movement.longitude,
+                      attendanceMode:movement.status
+                    }
+                  ];
+
+                await saveRecordsToServer(records)
+                .then(data => {
+                  
+                })
+                .catch(error => {
+                  
+                  console.error("Error saving records:", error);
+                  setErrorMsg("Error saving records");
+                });
+
                 }
-
-
                 else
                 {
-                    if(lastMovement.fenceId===fence.id && lastMovement.status != 'isInside')
+                    if(lastMovement.fenceId===fence.id && lastMovement.status != 0)
                     {
-                        movementList.push(movement);
+                        await movementList.push(movement);
+                        const records = [
+                            {
+                              positionDate: movement.time,
+                              fK_Map_ID:  movement.fenceId,
+                              fK_Employee_ID:  await AsyncStorage.getItem('employeeID'),
+                              latitude: movement.latitude,
+                              longitude: movement.longitude,
+                              attendanceMode:movement.status
+                            }
+                          ];
+        
+                          await saveRecordsToServer(records)
+                        .then(data => {
+                          
+                        })
+                        .catch(error => {
+                          
+                          console.error("Error saving records:", error);
+                          setErrorMsg("Error saving records");
+                        });
+        
 
                     }
 
@@ -124,20 +187,69 @@ const FenceMap = () => {
                    
                     time: new Date(),
                     fenceId: fence.id,
-                    status: 'outSide', 
+                    status: 1, 
                     isUpload: false,
                     latitude:latitude,
                     longitude:longitude
                 };
                 if(lastMovement === undefined)
                 {
-                movementList.push(movement);
+                    await movementList.push(movement);
+
+                const records = [
+                    {
+                      positionDate: movement.time,
+                      fK_Map_ID:  movement.fenceId,
+                      fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
+                      latitude: movement.latitude,
+                      longitude: movement.longitude,
+                      attendanceMode:movement.status
+                    }
+                  ];
+
+                  await saveRecordsToServer(records)
+                .then(data => {
+                  
+                })
+                .catch(error => {
+                  
+                  console.error("Error saving records:", error);
+                  setErrorMsg("Error saving records");
+                });
+
+
+
+
+
+
+                
                 }
                 else
                 {
-                    if(lastMovement.fenceId===fence.id && lastMovement.status != 'outSide')
+                    if(lastMovement.fenceId===fence.id && lastMovement.status != 1)
                     {
-                        movementList.push(movement);
+                        await movementList.push(movement);
+                        const records = [
+                            {
+                              positionDate: movement.time,
+                              fK_Map_ID:  movement.fenceId,
+                              fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
+                              latitude: movement.latitude,
+                              longitude: movement.longitude,
+                              attendanceMode:movement.status
+                            }
+                          ];
+        
+                          await saveRecordsToServer(records)
+                        .then(data => {
+                          
+                        })
+                        .catch(error => {
+                          
+                          console.error("Error saving records:", error);
+                          setErrorMsg("Error saving records");
+                        });
+        
 
                     }
 
@@ -145,28 +257,8 @@ const FenceMap = () => {
             }
            
         }
-        //console.log(movementList);
-        // if (insideFence !== null) {
-        //     // User is inside a fence
-        //     if (userState === 0) {
-        //         setUserState(1);
-        //         setEnteredFences(prevEnteredFences => [...prevEnteredFences, insideFence]);
-        //        // console.log('Entered fence:', insideFence);
-        //        // Alert.alert('Alert', 'You have entered the area!');
-        //         insideFence = null;
-        //     }
-        // } else {
-        //     // User is outside all fences
-        //     if (userState === 1) {
-        //         const exitFence = enteredFences.pop();
-        //         setUserState(0);
-        //         setExitedFences(prevExitedFences => [...prevExitedFences, exitFence]);
-        //        // console.log('Exited fence:', exitFence);
-        //        // Alert.alert('Alert', 'You have exited the area!');
-        //     }
-        // }
+     
     };
-
 
     if (!location) {
         return <View><Text>Loading...</Text></View>; // Render loading indicator until location is available

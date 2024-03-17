@@ -36,7 +36,7 @@ const App = () => {
         AsyncStorage.setItem('imageURL', result.data.data.imageURL);
         AsyncStorage.setItem('employeeID', result.data.data.employeeID);
         const url = await AsyncStorage.getItem('imageURL')
-        console.log(url)
+        //console.log(url)
         // console.log(result.data.data.firstName)
         // console.log(result.data.data.userID)
         navigation.navigate('Root'); // Use the navigation object to navigate to the 'Home' screen
