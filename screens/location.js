@@ -132,7 +132,7 @@ const FenceMap = () => {
                     await movementList.push(movement);
                     const records = [
                         {
-                            id: movement.mobileId,
+                            mobileId: movement.mobileId,
                             positionDate: movement.time,
                             fK_Map_ID: movement.fenceId,
                             fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
@@ -158,7 +158,7 @@ const FenceMap = () => {
                         await movementList.push(movement);
                         const records = [
                             {
-                                id: movement.mobileId,
+                                mobileId: movement.mobileId,
                                 positionDate: movement.time,
                                 fK_Map_ID: movement.fenceId,
                                 fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
@@ -198,7 +198,7 @@ const FenceMap = () => {
 
                     const records = [
                         {
-                            id: movement.mobileId,
+                            mobileId: movement.mobileId,
                             positionDate: movement.time,
                             fK_Map_ID: movement.fenceId,
                             fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
@@ -218,19 +218,13 @@ const FenceMap = () => {
                             setErrorMsg("Error saving records");
                         });
 
-
-
-
-
-
-
                 }
                 else {
                     if (lastMovement.fenceId === fence.id && lastMovement.status != 1) {
                         await movementList.push(movement);
                         const records = [
                             {
-                                id: movement.mobileId,
+                                mobileId: movement.mobileId,
                                 positionDate: movement.time,
                                 fK_Map_ID: movement.fenceId,
                                 fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
