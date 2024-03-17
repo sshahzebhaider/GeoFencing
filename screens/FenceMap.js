@@ -13,37 +13,36 @@ const FenceMap = () => {
     const [exitedFences, setExitedFences] = useState([]);
     const [errorMsg, setErrorMsg] = useState(null);
 
-    useEffect(() => {
-        const fetchAreaCoordinates = async () => {
-            try {
-                const body = {
-                    skip: 0,
-                    take: 100,
-                    page: 1,
-                    pageSize: 100
-                };
-                const token = await AsyncStorage.getItem('AccessToken');
-                const response = await axios.post(
-                    'http://65.21.231.108:2323/api/Map/Get',
-                    body,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                );
-                // console.log("Response:", response);
-                const responseData = response.data;
-                console.log(responseData.data);
-                setFences(responseData.data);
-            } catch (error) {
-                console.error("Error fetching area coordinates:", error);
-                setErrorMsg("Error fetching area coordinates");
+  useEffect(() => {
+    const fetchAreaCoordinates = async () => {
+      try {
+        const body = {
+          skip: 0,
+          take: 100,
+          page: 1,
+          pageSize: 100
+        }
+        const token = await AsyncStorage.getItem('AccessToken');
+        const response = await axios.post(
+          'http://65.21.231.108:2323/api/Map/Get', body,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
             }
-        };
+          }
+        );
+        // console.log("Response:", response);
+        const responseData = response.data;
+        console.log(responseData.data)
+        setFences(responseData.data)
 
-        fetchAreaCoordinates();
-    }, []);
+      } catch (error) {
+        console.error("Error fetching area coordinates:", error);
+        setErrorMsg("Error fetching area coordinates");
+      }
+    };
+    fetchAreaCoordinates();
+  }, [])
 
     useEffect(() => {
         const startWatchingLocation = async () => {
