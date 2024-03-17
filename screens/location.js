@@ -120,7 +120,7 @@ const FenceMap = () => {
             if (geolib.isPointInPolygon({ latitude: latitude, longitude: longitude }, fence.mapCoordinates)) {
 
                 const movement = {
-                    id: uuid.v4(),
+                    mobileId: uuid.v4(),
                     time: new Date(),
                     fenceId: fence.id,
                     status: 0,
@@ -132,7 +132,7 @@ const FenceMap = () => {
                     await movementList.push(movement);
                     const records = [
                         {
-                            id: movement.id,
+                            id: movement.mobileId,
                             positionDate: movement.time,
                             fK_Map_ID: movement.fenceId,
                             fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
@@ -158,7 +158,7 @@ const FenceMap = () => {
                         await movementList.push(movement);
                         const records = [
                             {
-                                id: movement.id,
+                                id: movement.mobileId,
                                 positionDate: movement.time,
                                 fK_Map_ID: movement.fenceId,
                                 fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
@@ -185,7 +185,7 @@ const FenceMap = () => {
             }
             else {
                 const movement = {
-                    id: uuid.v4(),
+                    mobileId: uuid.v4(),
                     time: new Date(),
                     fenceId: fence.id,
                     status: 1,
@@ -198,7 +198,7 @@ const FenceMap = () => {
 
                     const records = [
                         {
-                            id: movement.id,
+                            id: movement.mobileId,
                             positionDate: movement.time,
                             fK_Map_ID: movement.fenceId,
                             fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
@@ -230,7 +230,7 @@ const FenceMap = () => {
                         await movementList.push(movement);
                         const records = [
                             {
-                                id: movement.id,
+                                id: movement.mobileId,
                                 positionDate: movement.time,
                                 fK_Map_ID: movement.fenceId,
                                 fK_Employee_ID: await AsyncStorage.getItem('employeeID'),
