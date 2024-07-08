@@ -13,18 +13,6 @@ const FenceMap = () => {
     const [exitedFences, setExitedFences] = useState([]);
     const [errorMsg, setErrorMsg] = useState(null);
 
-
-
-
-
-
-
-    
-
-
-
-
-
   useEffect(() => {
     const fetchAreaCoordinates = async () => {
       try {
@@ -118,8 +106,6 @@ const FenceMap = () => {
             }
         }
     };
-    
-    
 
     if (!location) {
         return <View><Text>Loading...</Text></View>; // Render loading indicator until location is available
